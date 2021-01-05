@@ -11,6 +11,11 @@ var app = require("../app");
 var http = require("http");
 
 /**
+ * Database dependencies
+ */
+const { sequelize } = require("../db/models");
+
+/**
  * Get port from environment and store in Express.
  */
 
@@ -86,4 +91,18 @@ function onListening() {
   var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
 
   console.log("Listening on " + bind);
+  dbConnect();
+}
+
+/**
+ * Connect to DB
+ */
+
+async function dbConnect() {
+  try {
+    await sequelize.authenticate();
+    console.log("Database synced!");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
 }
