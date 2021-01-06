@@ -1,0 +1,16 @@
+.login-page-container {
+  display: flex;
+  .container {
+    height: 100vh;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .login-page-container {
+    flex-direction: column;
+    .container {
+      height: 50vh;
+      width: 100%;
+    }
+  }
+}
