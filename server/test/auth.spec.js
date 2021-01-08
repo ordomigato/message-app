@@ -21,8 +21,9 @@ describe("/POST api/auth", () => {
         })
         .end((err, res) => {
           res.should.have.status(201);
-          res.body.should.have.property("msg").eql("Account Created");
+          res.body.should.have.property("msg");
           res.body.should.have.property("success").eql(true);
+          res.body.should.have.property("results");
           done();
         });
     });
@@ -123,6 +124,7 @@ describe("/POST api/auth", () => {
         .end((err, res) => {
           res.should.have.status(200);
           res.body.should.have.property("success").eql(true);
+          res.body.should.have.property("results");
           done();
         });
     });
