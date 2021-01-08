@@ -1,30 +1,60 @@
 import React, { useContext, useState } from "react";
-import "./index.scss";
-import { Link } from "react-router-dom";
-import { TextField, FormControl } from "@material-ui/core";
+import { Link, useHistory } from "react-router-dom";
+import {
+  TextField,
+  FormControl,
+  Typography,
+  Grid,
+  Container,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import MuiAlert from "@material-ui/lab/Alert";
 import LargeButton from "../LargeButton";
 import UserContext from "../../store/context/users";
 
 const useStyles = makeStyles(() => ({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+  },
   textField: {
     margin: "20px 0",
+  },
+  formContainer: {
+    maxWidth: "380px",
+    alignSelf: "center",
+  },
+  header: {
+    padding: "20px 0",
+  },
+  link: {
+    textDecoration: "none",
+    marginLeft: "30px",
   },
 }));
 
 const LoginForm = () => {
+  const history = useHistory();
   const classes = useStyles();
-  const { login, loginErrors } = useContext(UserContext);
+  const { login } = useContext(UserContext);
 
   const [loginInfo, setLoginInfo] = useState({
     email: "",
     pw: "",
   });
 
+  const [loginErrors, setLoginErrors] = useState([]);
+
   const handleLogin = e => {
     e.preventDefault();
-    login(loginInfo).then(res => console.log(res));
+    login(loginInfo).then(res => {
+      if (res.error) {
+        return setLoginErrors([res.error]);
+      } else {
+        setLoginErrors([]);
+        history.push("/");
+      }
+    });
   };
 
   const updateState = e => {
@@ -34,21 +64,31 @@ const LoginForm = () => {
   };
 
   return (
-    <section className="container login-form-container">
-      <header className="form-section-header">
-        <p className="auth-link">Don't have an account?</p>
-        <Link to="/signup" className="signup-link">
+    <Container component="section" className={classes.root}>
+      <Grid
+        container
+        justify="flex-end"
+        alignItems="center"
+        className={classes.header}
+        component="header"
+      >
+        <Grid item>
+          <Typography variant="h5">Don't have an account?</Typography>
+        </Grid>
+        <Link to="/signup" className={classes.link}>
           <LargeButton color="primary">Create Account</LargeButton>
         </Link>
-      </header>
-      <div className="login-form-wrapper">
-        <h2 className="login-form-title">Create an account.</h2>
+      </Grid>
+      <Grid container direction="column" className={classes.formContainer}>
+        <Typography variant="h2" component="h1">
+          Welcome back!
+        </Typography>
         {/* Display Errors */}
-        {loginErrors.length > 0 && (
-          <MuiAlert variant="outlined" severity="error">
-            {loginErrors}
+        {loginErrors.map((error, index) => (
+          <MuiAlert variant="outlined" severity="error" key={index}>
+            {error}
           </MuiAlert>
-        )}
+        ))}
         <form method="post" onSubmit={e => handleLogin(e)}>
           <FormControl variant="outlined" fullWidth margin="normal">
             <TextField
@@ -75,14 +115,14 @@ const LoginForm = () => {
               autoComplete="current-password"
             />
           </FormControl>
-          <div className="login-button-container">
+          <Grid container justify="center">
             <LargeButton type="submit" variant="contained" color="primary">
               Login
             </LargeButton>
-          </div>
+          </Grid>
         </form>
-      </div>
-    </section>
+      </Grid>
+    </Container>
   );
 };
 

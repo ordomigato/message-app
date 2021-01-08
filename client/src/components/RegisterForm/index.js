@@ -1,7 +1,12 @@
 import React, { useContext, useState } from "react";
-import "./index.scss";
 import { Link } from "react-router-dom";
-import { TextField, FormControl } from "@material-ui/core";
+import {
+  TextField,
+  FormControl,
+  Typography,
+  Grid,
+  Container,
+} from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
 import LargeButton from "../LargeButton";
 import { makeStyles } from "@material-ui/core/styles";
@@ -9,8 +14,23 @@ import UserContext from "../../store/context/users";
 import { checkField, checkAllFields } from "../../utils/validation";
 
 const useStyles = makeStyles(() => ({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+  },
   textField: {
     margin: "20px 0",
+  },
+  formContainer: {
+    maxWidth: "380px",
+    alignSelf: "center",
+  },
+  header: {
+    padding: "20px 0",
+  },
+  link: {
+    textDecoration: "none",
+    marginLeft: "30px",
   },
   isValid: {
     visibility: "hidden",
@@ -23,7 +43,10 @@ const useStyles = makeStyles(() => ({
 
 const RegisterForm = () => {
   const classes = useStyles();
-  const { signup, signupErrors } = useContext(UserContext);
+  const { signup } = useContext(UserContext);
+
+  const [registerErrors, setRegisterErrors] = useState([]);
+  const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
 
   const [signupInfo, setSignupInfo] = useState({
     username: "",
@@ -32,77 +55,107 @@ const RegisterForm = () => {
     confirmPw: "",
   });
 
-  const { username, email, pw, confirmPw } = signupInfo;
-
   const [isValid, setIsValid] = useState({
-    usernameIsValid: false,
-    emailIsValid: false,
-    pwIsValid: false,
-    confirmPwIsValid: false,
+    usernameIsValid: {
+      bool: false,
+      errorMsg: null,
+    },
+    emailIsValid: {
+      bool: false,
+      errorMsg: null,
+    },
+    pwIsValid: {
+      bool: false,
+      errorMsg: null,
+    },
+    confirmPwIsValid: {
+      bool: false,
+      errorMsg: null,
+    },
   });
 
-  const [allValid, setAllValid] = useState(false);
+  // easier access
+  const { username, email, pw, confirmPw } = signupInfo;
 
   const updateState = e => {
     // extract name (used as key) and value
     const { name: key, value } = e.target;
     // update global state
     setSignupInfo({ ...signupInfo, [key]: value });
-    // perform validation
-    validate(key, value);
   };
 
-  const validate = (key, value) => {
-    const valid = checkField(key, value);
-    const isValidString = `${key}IsValid`;
-    // form new state and set it as well as check if all values are valid
-    if (key === "pw") {
-      let isValidData = {
-        ...isValid,
-        [isValidString]: valid,
-        confirmPwIsValid: value === confirmPw ? true : false,
+  const validate = () => {
+    // perform validation
+    let isValidResults = {};
+    Object.keys(signupInfo).forEach(key => {
+      const isValidString = `${key}IsValid`;
+      const { isSuccess, errorMsg } = checkField(key, signupInfo[key]);
+      // add results to isValidResults
+      isValidResults = {
+        ...isValidResults,
+        [isValidString]: { bool: isSuccess, errorMsg },
       };
-      setIsValid(isValidData);
-      setAllValid(checkAllFields(isValidData));
-    } else if (key === "confirmPw") {
-      let isValidData = {
-        ...isValid,
-        [isValidString]: valid,
-        confirmPwIsValid: value === pw ? true : false,
-      };
-      setIsValid(isValidData);
-      setAllValid(checkAllFields(isValidData));
-    } else {
-      let isValidData = {
-        ...isValid,
-        [isValidString]: valid,
-      };
-      setIsValid(isValidData);
-      setAllValid(checkAllFields(isValidData));
-    }
+    });
+    // check password matches confirmPw and add to isValidResults
+    const pwMatches = pw === confirmPw;
+    isValidResults = {
+      ...isValidResults,
+      confirmPwIsValid: {
+        bool: pwMatches,
+        errorMsg: pwMatches ? null : "Passwords do not match",
+      },
+    };
+    // set isValidResults
+    setIsValid(isValidResults);
+
+    // check if all fields pass and retun
+    return checkAllFields(isValidResults);
   };
 
   const onSubmit = e => {
     e.preventDefault();
-    signup(signupInfo);
+    // clear registerErrors
+    setRegisterErrors([]);
+    // validate
+    const isSignupInfoValid = validate();
+    setSubmitButtonPressed(true);
+    // if all valid, continue with signup
+    if (isSignupInfoValid === true) {
+      signup(signupInfo).then(res =>
+        res.error ? setRegisterErrors([res.error]) : setRegisterErrors([])
+      );
+      return;
+    } else {
+      return;
+    }
   };
 
   return (
-    <section className="container register-form-container">
-      <header className="form-section-header">
-        <p className="auth-link">Already have an account?</p>
-        <Link to="/login" className="login-link">
+    <Container component="section" className={classes.root}>
+      <Grid
+        container
+        justify="flex-end"
+        alignItems="center"
+        className={classes.header}
+        component="header"
+      >
+        <Grid item>
+          <Typography variant="h5">Already have an account?</Typography>
+        </Grid>
+        <Link to="/login" className={classes.link}>
           <LargeButton color="primary">Login</LargeButton>
         </Link>
-      </header>
-      <div className="register-form-wrapper">
-        <h2 className="register-form-title">Create an account.</h2>
+      </Grid>
+      <Grid container direction="column" className={classes.formContainer}>
+        <Typography variant="h2" component="h1" className="login-form-title">
+          Create an account.
+        </Typography>
         {/* Display Errors */}
-        {signupErrors.length > 0 && (
-          <MuiAlert variant="outlined" severity="error">
-            {signupErrors}
+        {registerErrors.map((error, index) => (
+          <MuiAlert variant="outlined" severity="error" key={index}>
+            {error}
           </MuiAlert>
-        )}
+        ))}
         <form method="post" onSubmit={e => onSubmit(e)}>
           <FormControl variant="outlined" fullWidth margin="normal">
             <TextField
@@ -116,13 +169,11 @@ const RegisterForm = () => {
               onChange={updateState}
               autoFocus
               autoComplete="username"
-              error={!isValid.usernameIsValid}
-              helperText="Please enter a username"
+              error={submitButtonPressed && !isValid.usernameIsValid.bool}
+              helperText={isValid.usernameIsValid.errorMsg}
               FormHelperTextProps={{
                 classes: {
-                  root: isValid.usernameIsValid
-                    ? classes.isValid
-                    : username === ""
+                  root: isValid.usernameIsValid.bool
                     ? classes.isValid
                     : classes.notValid,
                 },
@@ -138,13 +189,11 @@ const RegisterForm = () => {
               value={email}
               onChange={updateState}
               autoComplete="email"
-              error={!isValid.emailIsValid}
-              helperText="Please enter your email"
+              error={submitButtonPressed && !isValid.emailIsValid.bool}
+              helperText={isValid.emailIsValid.errorMsg}
               FormHelperTextProps={{
                 classes: {
-                  root: isValid.emailIsValid
-                    ? classes.isValid
-                    : email === ""
+                  root: isValid.emailIsValid.bool
                     ? classes.isValid
                     : classes.notValid,
                 },
@@ -160,13 +209,11 @@ const RegisterForm = () => {
               value={pw}
               onChange={updateState}
               autoComplete="new-password"
-              error={!isValid.pwIsValid}
-              helperText="Please enter a password"
+              error={submitButtonPressed && !isValid.pwIsValid.bool}
+              helperText={isValid.pwIsValid.errorMsg}
               FormHelperTextProps={{
                 classes: {
-                  root: isValid.pwIsValid
-                    ? classes.isValid
-                    : pw === ""
+                  root: isValid.pwIsValid.bool
                     ? classes.isValid
                     : classes.notValid,
                 },
@@ -182,32 +229,25 @@ const RegisterForm = () => {
               value={confirmPw}
               onChange={updateState}
               autoComplete="new-password"
-              error={!isValid.confirmPwIsValid}
-              helperText="Passwords do not match"
+              error={submitButtonPressed && !isValid.confirmPwIsValid.bool}
+              helperText={isValid.confirmPwIsValid.errorMsg}
               FormHelperTextProps={{
                 classes: {
-                  root: isValid.confirmPwIsValid
-                    ? classes.isValid
-                    : confirmPw === ""
+                  root: isValid.confirmPwIsValid.bool
                     ? classes.isValid
                     : classes.notValid,
                 },
               }}
             />
           </FormControl>
-          <div className="register-button-container">
-            <LargeButton
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={!allValid}
-            >
+          <Grid container justify="center">
+            <LargeButton type="submit" variant="contained" color="primary">
               Create
             </LargeButton>
-          </div>
+          </Grid>
         </form>
-      </div>
-    </section>
+      </Grid>
+    </Container>
   );
 };
 
