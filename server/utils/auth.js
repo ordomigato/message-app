@@ -7,18 +7,18 @@ const { User } = require("../db/models");
 
 const userAuth = passport.authenticate("jwt", { session: false });
 
-const validateEmail = async email => {
+const validateEmailAvailability = async email => {
   const findEmail = await User.findOne({ where: { email } });
   return findEmail ? true : false;
 };
 
-const validateUsername = async username => {
+const validateUsernameAvailability = async username => {
   const findUsername = await User.findOne({ where: { username } });
   return findUsername ? true : false;
 };
 
 module.exports = {
-  validateEmail,
-  validateUsername,
+  validateEmailAvailability,
+  validateUsernameAvailability,
   userAuth,
 };

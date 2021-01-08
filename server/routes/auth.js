@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const { check, validationResult } = require("express-validator");
-const { validateEmail, validateUsername, userAuth } = require("../utils/auth");
+const {
+  validateEmailAvailability,
+  validateUsernameAvailability,
+  userAuth,
+} = require("../utils/auth");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { User } = require("../db/models");
@@ -12,6 +16,13 @@ const serverErrorHandler = msg => {
     success: false,
   });
 };
+
+// @route       POST api/auth
+// @desc        check if user is authenticated
+// @access      Public
+router.get("/", userAuth, (req, res) => {
+  res.status(200).json({ msg: "User is authenticated", success: true });
+});
 
 // @route       POST api/auth/signup
 // @desc        Register user
@@ -36,10 +47,10 @@ router.post(
     }
 
     try {
-      let { username, email, pw } = req.body;
+      const { username, email, pw } = req.body;
 
       // check is email is already in use
-      let emailTaken = await validateEmail(email);
+      const emailTaken = await validateEmailAvailability(email);
       if (emailTaken) {
         return res.status(400).json({
           msg: "Email is already taken",
@@ -48,7 +59,7 @@ router.post(
       }
 
       // check is username is already in use
-      let usernameTaken = await validateUsername(username);
+      const usernameTaken = await validateUsernameAvailability(username);
       if (usernameTaken) {
         return res.status(400).json({
           msg: "Username is already taken",
@@ -65,7 +76,20 @@ router.post(
         pw: hashedPassword,
       });
 
-      res.status(201).json({ msg: "Account Created", success: true });
+      // create token
+      const token = jwt.sign(
+        {
+          username,
+          email,
+        },
+        process.env.JWT_SECRET_TOKEN
+      );
+
+      const results = {
+        token: `Bearer ${token}`,
+      };
+
+      res.status(201).json({ results, msg: "Account Created", success: true });
     } catch (err) {
       return serverErrorHandler("SERVER ERROR: could not create user");
     }
@@ -103,17 +127,16 @@ router.post(
       const isMatch = await bcrypt.compare(pw, user.pw);
 
       if (isMatch) {
-        let token = jwt.sign(
+        // create token
+        const token = jwt.sign(
           {
-            user_id: user.id,
+            username: user.username,
             email: user.email,
           },
           process.env.JWT_SECRET_TOKEN
         );
 
-        let results = {
-          username: user.role,
-          email: user.email,
+        const results = {
           token: `Bearer ${token}`,
         };
 
@@ -132,10 +155,5 @@ router.post(
     }
   }
 );
-
-// for testing userAuth middleware
-router.get("/secret", userAuth, (req, res) => {
-  res.status(200).send("Secret route");
-});
 
 module.exports = router;
