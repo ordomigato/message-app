@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect } from "react";
 import UserContext from "../context/users";
 import userReducer from "../reducer/users";
 
@@ -7,19 +7,20 @@ import {
   LOGIN_SUCCESS,
   SIGNUP_FAIL,
   SIGNUP_SUCCESS,
+  AUTH_SUCCESS,
+  AUTH_ERROR,
 } from "../constants";
 
 const UserState = props => {
   const initialState = {
-    signupErrors: [],
-    loginErrors: [],
+    isAuthenticated: false,
+    user: {},
+    loading: true,
   };
 
   // signup action
   const signup = async user => {
     try {
-      if (user.email !== "test@test.com")
-        throw { msg: "email is already taken" };
       dispatch({
         type: SIGNUP_SUCCESS,
       });
@@ -27,39 +28,56 @@ const UserState = props => {
     } catch (err) {
       dispatch({
         type: SIGNUP_FAIL,
-        payload: err.msg,
       });
+      return { error: err.msg };
     }
   };
 
   // login action
   const login = async user => {
     try {
-      if (user.email !== "test@test.com") throw { msg: "email is not correct" };
       dispatch({
         type: LOGIN_SUCCESS,
       });
       return { msg: "user successfully logged in" };
     } catch (err) {
-      console.log(err);
       dispatch({
         type: LOGIN_FAIL,
-        payload: err.msg,
+      });
+      return { error: err.msg };
+    }
+  };
+
+  // loadUser info
+  const loadUser = async () => {
+    try {
+      dispatch({
+        type: AUTH_SUCCESS,
+      });
+    } catch (err) {
+      dispatch({
+        type: AUTH_ERROR,
       });
     }
   };
+
+  useEffect(() => {
+    loadUser();
+  }, []);
 
   const [state, dispatch] = useReducer(userReducer, initialState);
   return (
     <UserContext.Provider
       value={{
-        signupErrors: state.signupErrors,
-        loginErrors: state.loginErrors,
+        isAuthenticated: state.isAuthenticated,
+        user: state.user,
         signup,
         login,
+        loadUser,
       }}
     >
-      {props.children}
+      {/* fix to avoid rendering prior to loading user */}
+      {!state.loading && props.children}
     </UserContext.Provider>
   );
 };

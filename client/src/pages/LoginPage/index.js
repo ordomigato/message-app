@@ -1,16 +1,12 @@
 import React from "react";
-import "./index.scss";
 import LoginForm from "../../components/LoginForm";
-import AuthBanner from "../../components/AuthBanner";
+import AuthLayout from "../../components/Layout/Auth";
 
 const LoginPage = () => {
   return (
-    <div>
-      <main className="login-page-container">
-        <AuthBanner />
-        <LoginForm />
-      </main>
-    </div>
+    <AuthLayout>
+      <LoginForm />
+    </AuthLayout>
   );
 };
 

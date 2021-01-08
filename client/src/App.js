@@ -1,10 +1,11 @@
-import React from "react";
 import { MuiThemeProvider } from "@material-ui/core";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
-
 import { theme } from "./themes/theme";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import PrivateRoute from "./routes/PrivateRoute";
+
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
+import MessagePage from "./pages/MessagePage";
 
 import UserState from "./store/state/UserState";
 
@@ -16,9 +17,9 @@ function App() {
       <MuiThemeProvider theme={theme}>
         <BrowserRouter>
           <Switch>
-            <Route exact path="/">
-              <Redirect to="/signup" />
-            </Route>
+            <PrivateRoute exact path="/">
+              <MessagePage />
+            </PrivateRoute>
             <Route exact path="/signup" component={SignupPage} />
             <Route exact path="/login" component={LoginPage} />
           </Switch>

@@ -1,14 +1,12 @@
 import React from "react";
-import "./index.scss";
 import RegisterForm from "../../components/RegisterForm";
-import AuthBanner from "../../components/AuthBanner";
+import AuthLayout from "../../components/Layout/Auth";
 
 const SignupPage = () => {
   return (
-    <main className="signup-page-container">
-      <AuthBanner />
+    <AuthLayout>
       <RegisterForm />
-    </main>
+    </AuthLayout>
   );
 };
 
