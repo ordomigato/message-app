@@ -11,7 +11,7 @@ The project is broken down into a client and server folder.
 The below instructions require [Sequelize-CLI](https://github.com/sequelize/cli "Sequelize-CLI on github").
 
 ```bash
-$ npm install --save-dev sequelize-cli
+$ npm install -g sequelize-cli
 ```
 
 Before continuing, create a .env file in `./server` and fill out the following.
@@ -37,4 +37,14 @@ $ sequelize db:migrate
 
 # run server
 $ npm run dev
+```
+
+## Backend Build Setup
+
+```bash
+# install dependencies
+$ npm install
+
+# run application
+$ npm run start
 ```
