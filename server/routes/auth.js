@@ -21,7 +21,9 @@ const serverErrorHandler = msg => {
 // @desc        check if user is authenticated
 // @access      Public
 router.get("/", userAuth, (req, res) => {
-  res.status(200).json({ msg: "User is authenticated", success: true });
+  res
+    .status(200)
+    .json({ msg: "User is authenticated", success: true, user: req.user });
 });
 
 // @route       POST api/auth/signup
