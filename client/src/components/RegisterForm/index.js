@@ -43,7 +43,7 @@ const useStyles = makeStyles(() => ({
 
 const RegisterForm = () => {
   const classes = useStyles();
-  const { signup } = useContext(UserContext);
+  const { signup, logout, isAuthenticated } = useContext(UserContext);
 
   const [registerErrors, setRegisterErrors] = useState([]);
   const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
@@ -122,7 +122,9 @@ const RegisterForm = () => {
     // if all valid, continue with signup
     if (isSignupInfoValid === true) {
       signup(signupInfo).then(res =>
-        res.error ? setRegisterErrors([res.error]) : setRegisterErrors([])
+        res.success === false
+          ? setRegisterErrors([res.msg])
+          : setRegisterErrors([])
       );
       return;
     } else {
@@ -132,121 +134,131 @@ const RegisterForm = () => {
 
   return (
     <Container component="section" className={classes.root}>
-      <Grid
-        container
-        justify="flex-end"
-        alignItems="center"
-        className={classes.header}
-        component="header"
-      >
-        <Grid item>
-          <Typography variant="h5">Already have an account?</Typography>
-        </Grid>
-        <Link to="/login" className={classes.link}>
-          <LargeButton color="primary">Login</LargeButton>
-        </Link>
-      </Grid>
-      <Grid container direction="column" className={classes.formContainer}>
-        <Typography variant="h2" component="h1" className="login-form-title">
-          Create an account.
-        </Typography>
-        {/* Display Errors */}
-        {registerErrors.map((error, index) => (
-          <MuiAlert variant="outlined" severity="error" key={index}>
-            {error}
-          </MuiAlert>
-        ))}
-        <form method="post" onSubmit={e => onSubmit(e)}>
-          <FormControl variant="outlined" fullWidth margin="normal">
-            <TextField
-              className={classes.textField}
-              required
-              id="username"
-              label="Username"
-              type="text"
-              name="username"
-              value={username}
-              onChange={updateState}
-              autoFocus
-              autoComplete="username"
-              error={submitButtonPressed && !isValid.usernameIsValid.bool}
-              helperText={isValid.usernameIsValid.errorMsg}
-              FormHelperTextProps={{
-                classes: {
-                  root: isValid.usernameIsValid.bool
-                    ? classes.isValid
-                    : classes.notValid,
-                },
-              }}
-            />
-            <TextField
-              className={classes.textField}
-              required
-              id="email"
-              label="E-mail address"
-              type="email"
-              name="email"
-              value={email}
-              onChange={updateState}
-              autoComplete="email"
-              error={submitButtonPressed && !isValid.emailIsValid.bool}
-              helperText={isValid.emailIsValid.errorMsg}
-              FormHelperTextProps={{
-                classes: {
-                  root: isValid.emailIsValid.bool
-                    ? classes.isValid
-                    : classes.notValid,
-                },
-              }}
-            />
-            <TextField
-              className={classes.textField}
-              required
-              id="password"
-              label="Password"
-              type="password"
-              name="pw"
-              value={pw}
-              onChange={updateState}
-              autoComplete="new-password"
-              error={submitButtonPressed && !isValid.pwIsValid.bool}
-              helperText={isValid.pwIsValid.errorMsg}
-              FormHelperTextProps={{
-                classes: {
-                  root: isValid.pwIsValid.bool
-                    ? classes.isValid
-                    : classes.notValid,
-                },
-              }}
-            />
-            <TextField
-              className={classes.textField}
-              required
-              id="confirm-password"
-              label="Confirm Password"
-              type="password"
-              name="confirmPw"
-              value={confirmPw}
-              onChange={updateState}
-              autoComplete="new-password"
-              error={submitButtonPressed && !isValid.confirmPwIsValid.bool}
-              helperText={isValid.confirmPwIsValid.errorMsg}
-              FormHelperTextProps={{
-                classes: {
-                  root: isValid.confirmPwIsValid.bool
-                    ? classes.isValid
-                    : classes.notValid,
-                },
-              }}
-            />
-          </FormControl>
-          <Grid container justify="center">
-            <LargeButton type="submit" variant="contained" color="primary">
-              Create
-            </LargeButton>
+      {isAuthenticated ? (
+        <LargeButton onClick={logout}>Logout</LargeButton>
+      ) : (
+        <>
+          <Grid
+            container
+            justify="flex-end"
+            alignItems="center"
+            className={classes.header}
+            component="header"
+          >
+            <Grid item>
+              <Typography variant="h5">Already have an account?</Typography>
+            </Grid>
+            <Link to="/login" className={classes.link}>
+              <LargeButton color="primary">Login</LargeButton>
+            </Link>
           </Grid>
-        </form>
-      </Grid>
+          <Grid container direction="column" className={classes.formContainer}>
+            <Typography
+              variant="h2"
+              component="h1"
+              className="login-form-title"
+            >
+              Create an account.
+            </Typography>
+            {/* Display Errors */}
+            {registerErrors.map((error, index) => (
+              <MuiAlert variant="outlined" severity="error" key={index}>
+                {error}
+              </MuiAlert>
+            ))}
+            <form method="post" onSubmit={e => onSubmit(e)}>
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <TextField
+                  className={classes.textField}
+                  required
+                  id="username"
+                  label="Username"
+                  type="text"
+                  name="username"
+                  value={username}
+                  onChange={updateState}
+                  autoFocus
+                  autoComplete="username"
+                  error={submitButtonPressed && !isValid.usernameIsValid.bool}
+                  helperText={isValid.usernameIsValid.errorMsg}
+                  FormHelperTextProps={{
+                    classes: {
+                      root: isValid.usernameIsValid.bool
+                        ? classes.isValid
+                        : classes.notValid,
+                    },
+                  }}
+                />
+                <TextField
+                  className={classes.textField}
+                  required
+                  id="email"
+                  label="E-mail address"
+                  type="email"
+                  name="email"
+                  value={email}
+                  onChange={updateState}
+                  autoComplete="email"
+                  error={submitButtonPressed && !isValid.emailIsValid.bool}
+                  helperText={isValid.emailIsValid.errorMsg}
+                  FormHelperTextProps={{
+                    classes: {
+                      root: isValid.emailIsValid.bool
+                        ? classes.isValid
+                        : classes.notValid,
+                    },
+                  }}
+                />
+                <TextField
+                  className={classes.textField}
+                  required
+                  id="password"
+                  label="Password"
+                  type="password"
+                  name="pw"
+                  value={pw}
+                  onChange={updateState}
+                  autoComplete="new-password"
+                  error={submitButtonPressed && !isValid.pwIsValid.bool}
+                  helperText={isValid.pwIsValid.errorMsg}
+                  FormHelperTextProps={{
+                    classes: {
+                      root: isValid.pwIsValid.bool
+                        ? classes.isValid
+                        : classes.notValid,
+                    },
+                  }}
+                />
+                <TextField
+                  className={classes.textField}
+                  required
+                  id="confirm-password"
+                  label="Confirm Password"
+                  type="password"
+                  name="confirmPw"
+                  value={confirmPw}
+                  onChange={updateState}
+                  autoComplete="new-password"
+                  error={submitButtonPressed && !isValid.confirmPwIsValid.bool}
+                  helperText={isValid.confirmPwIsValid.errorMsg}
+                  FormHelperTextProps={{
+                    classes: {
+                      root: isValid.confirmPwIsValid.bool
+                        ? classes.isValid
+                        : classes.notValid,
+                    },
+                  }}
+                />
+              </FormControl>
+              <Grid container justify="center">
+                <LargeButton type="submit" variant="contained" color="primary">
+                  Create
+                </LargeButton>
+              </Grid>
+            </form>
+          </Grid>
+        </>
+      )}
     </Container>
   );
 };

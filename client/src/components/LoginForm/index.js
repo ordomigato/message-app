@@ -36,7 +36,7 @@ const useStyles = makeStyles(() => ({
 const LoginForm = () => {
   const history = useHistory();
   const classes = useStyles();
-  const { login } = useContext(UserContext);
+  const { login, logout, isAuthenticated } = useContext(UserContext);
 
   const [loginInfo, setLoginInfo] = useState({
     email: "",
@@ -65,63 +65,69 @@ const LoginForm = () => {
 
   return (
     <Container component="section" className={classes.root}>
-      <Grid
-        container
-        justify="flex-end"
-        alignItems="center"
-        className={classes.header}
-        component="header"
-      >
-        <Grid item>
-          <Typography variant="h5">Don't have an account?</Typography>
-        </Grid>
-        <Link to="/signup" className={classes.link}>
-          <LargeButton color="primary">Create Account</LargeButton>
-        </Link>
-      </Grid>
-      <Grid container direction="column" className={classes.formContainer}>
-        <Typography variant="h2" component="h1">
-          Welcome back!
-        </Typography>
-        {/* Display Errors */}
-        {loginErrors.map((error, index) => (
-          <MuiAlert variant="outlined" severity="error" key={index}>
-            {error}
-          </MuiAlert>
-        ))}
-        <form method="post" onSubmit={e => handleLogin(e)}>
-          <FormControl variant="outlined" fullWidth margin="normal">
-            <TextField
-              className={classes.textField}
-              required
-              id="email"
-              label="E-mail address"
-              type="email"
-              name="email"
-              value={loginInfo.email}
-              onChange={updateState}
-              autoFocus
-              autoComplete="email"
-            />
-            <TextField
-              className={classes.textField}
-              required
-              id="password"
-              label="Password"
-              type="password"
-              name="pw"
-              value={loginInfo.pw}
-              onChange={updateState}
-              autoComplete="current-password"
-            />
-          </FormControl>
-          <Grid container justify="center">
-            <LargeButton type="submit" variant="contained" color="primary">
-              Login
-            </LargeButton>
+      {isAuthenticated ? (
+        <LargeButton onClick={logout}>Logout</LargeButton>
+      ) : (
+        <>
+          <Grid
+            container
+            justify="flex-end"
+            alignItems="center"
+            className={classes.header}
+            component="header"
+          >
+            <Grid item>
+              <Typography variant="h5">Don't have an account?</Typography>
+            </Grid>
+            <Link to="/signup" className={classes.link}>
+              <LargeButton color="primary">Create Account</LargeButton>
+            </Link>
           </Grid>
-        </form>
-      </Grid>
+          <Grid container direction="column" className={classes.formContainer}>
+            <Typography variant="h2" component="h1">
+              Welcome back!
+            </Typography>
+            {/* Display Errors */}
+            {loginErrors.map((error, index) => (
+              <MuiAlert variant="outlined" severity="error" key={index}>
+                {error}
+              </MuiAlert>
+            ))}
+            <form method="post" onSubmit={e => handleLogin(e)}>
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <TextField
+                  className={classes.textField}
+                  required
+                  id="email"
+                  label="E-mail address"
+                  type="email"
+                  name="email"
+                  value={loginInfo.email}
+                  onChange={updateState}
+                  autoFocus
+                  autoComplete="email"
+                />
+                <TextField
+                  className={classes.textField}
+                  required
+                  id="password"
+                  label="Password"
+                  type="password"
+                  name="pw"
+                  value={loginInfo.pw}
+                  onChange={updateState}
+                  autoComplete="current-password"
+                />
+              </FormControl>
+              <Grid container justify="center">
+                <LargeButton type="submit" variant="contained" color="primary">
+                  Login
+                </LargeButton>
+              </Grid>
+            </form>
+          </Grid>
+        </>
+      )}
     </Container>
   );
 };
