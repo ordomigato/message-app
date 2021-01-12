@@ -6,6 +6,9 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/users");
+const conversationRouter = require("./routes/conversations");
+const messageRouter = require("./routes/messages");
 
 const { json, urlencoded } = express;
 
@@ -24,6 +27,9 @@ app.use(express.static(join(__dirname, "public")));
 
 // routes
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
+app.use("/api/conversations", conversationRouter);
+app.use("/api/conversations/:id/messages", messageRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
