@@ -8,28 +8,37 @@ import { CHANGE_CONVERSATION, SEND_MESSAGE_SUCCESS } from "../constants";
 
 const ConversationState = props => {
   const initialState = {
+    // Remove once we can work with real data
     conversations: [
       {
         id: 1,
-        participants: [{ id: 2, name: "Jack", image: JackImage }],
+        participants: [{ id: 4321, username: "Jack", profileImage: JackImage }],
         messages: [
           {
             message: "Ready yet?",
             createdAt: "10:01",
-            sentBy: { id: 2, name: "Jack", image: JackImage },
-            viewedBy: [{ id: 2, name: "Jack" }],
+            createdBy: 4321,
+            User: {
+              id: 4321,
+              username: "Jack",
+              profileImage: JackImage,
+            },
           },
         ],
       },
       {
         id: 2,
-        participants: [{ id: 3, name: "Jill", image: JillImage }],
+        participants: [{ id: 1234, username: "Jill", profileImage: JillImage }],
         messages: [
           {
             message: "How's it going?",
             createdAt: "10:04",
-            sentBy: { id: 3, name: "Jill", image: JillImage },
-            viewedBy: [{ id: 3, name: "Jill" }],
+            createdBy: 1234,
+            User: {
+              id: 1234,
+              username: "Jill",
+              profileImage: JillImage,
+            },
           },
         ],
       },

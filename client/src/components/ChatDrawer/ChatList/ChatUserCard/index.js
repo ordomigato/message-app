@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { Grid, Typography, Badge } from "@material-ui/core";
-import UserAvatar from "../../../UserAvatar";
+import UserAvatar from "components/UserAvatar";
 import { makeStyles } from "@material-ui/core/styles";
-import ConversationContext from "../../../../store/context/conversations";
+import ConversationContext from "store/context/conversations";
+import UserContext from "store/context/users";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -24,6 +25,7 @@ const useStyles = makeStyles(() => ({
 
 const ChatUserCard = ({ conversation }) => {
   const { changeConversation } = useContext(ConversationContext);
+  const { user } = useContext(UserContext);
   const classes = useStyles();
 
   const onClick = e => {
@@ -38,14 +40,23 @@ const ChatUserCard = ({ conversation }) => {
       onClick={onClick}
     >
       <Grid item>
-        <UserAvatar image={conversation.participants[0].image} />
+        <UserAvatar
+          image={
+            // find first participant that isn't you
+            conversation.participants.find(p => p.id !== user.id).profileImage
+          }
+        />
       </Grid>
       <Grid item className={classes.userInfo}>
-        {conversation.participants.map(p => (
-          <Typography className={classes.name} key={p.id}>
-            {p.name}
-          </Typography>
-        ))}
+        <Typography className={classes.name}>
+          {conversation.participants.map((p, i) => (
+            <span key={p.id}>
+              {p.username}
+              {i === conversation.participants.length - 1 ? "" : ", "}
+            </span>
+          ))}
+        </Typography>
+
         <Typography className={classes.message}>
           {conversation.messages[0].message}
         </Typography>

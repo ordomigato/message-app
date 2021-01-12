@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import ChatUserCard from "./ChatUserCard";
 import SearchBar from "./SearchBar";
 import { Grid, Typography } from "@material-ui/core";
-import ConversationContext from "../../../store/context/conversations";
+import ConversationContext from "store/context/conversations";
 
 const ChatList = () => {
   const { conversations } = useContext(ConversationContext);

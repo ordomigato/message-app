@@ -32,12 +32,12 @@ const MessageContainer = ({ otherUser, message }) => {
   return (
     <Grid container justify={otherUser ? "flex-start" : "flex-end"}>
       <Grid item>
-        <Avatar className={classes.avatar} src={message.sentBy.image} />
+        <Avatar className={classes.avatar} src={message.User.profileImage} />
       </Grid>
       <Grid item className={classes.messageContainer}>
         <Typography className={classes.meta}>{`${
-          otherUser ? message.sentBy.name : ""
-        } ${"10:00"}`}</Typography>
+          otherUser ? message.User.username : ""
+        } ${message.createdAt}`}</Typography>
         <Typography className={classes.message}>{message.message}</Typography>
       </Grid>
     </Grid>

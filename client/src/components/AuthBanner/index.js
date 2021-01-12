@@ -1,6 +1,6 @@
 import React from "react";
-import backgroundImage from "../../assets/img/bg-img.png";
-import ChatBubble from "../../assets/svg/ChatBubble";
+import backgroundImage from "assets/img/bg-img.png";
+import ChatBubble from "assets/svg/ChatBubble";
 import { Typography, Paper, Grid, Box } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 

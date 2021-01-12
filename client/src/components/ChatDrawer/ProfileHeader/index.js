@@ -2,7 +2,7 @@ import React from "react";
 import { Grid, Typography, IconButton } from "@material-ui/core";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { makeStyles } from "@material-ui/core/styles";
-import UserAvatar from "../../UserAvatar";
+import UserAvatar from "components/UserAvatar";
 
 const useStyles = makeStyles(theme => ({
   container: {
