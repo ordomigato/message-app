@@ -21,7 +21,9 @@ const serverErrorHandler = msg => {
 // @desc        check if user is authenticated
 // @access      Public
 router.get("/", userAuth, (req, res) => {
-  res.status(200).json({ msg: "User is authenticated", success: true });
+  res
+    .status(200)
+    .json({ msg: "User is authenticated", success: true, user: req.user });
 });
 
 // @route       POST api/auth/signup
@@ -88,6 +90,7 @@ router.post(
 
       const results = {
         token: `Bearer ${token}`,
+        user,
       };
 
       res.status(201).json({ results, msg: "Account Created", success: true });
@@ -138,8 +141,12 @@ router.post(
           process.env.JWT_SECRET_TOKEN
         );
 
+        // get user without password field
+        const returnedUser = await User.findOne({ where: { email } });
+
         const results = {
           token: `Bearer ${token}`,
+          user: returnedUser,
         };
 
         return res.status(200).json({

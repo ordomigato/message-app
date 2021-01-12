@@ -1,6 +1,7 @@
 const createError = require("http-errors");
 const express = require("express");
 const passport = require("passport");
+const cors = require("cors");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -24,6 +25,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
+app.use(cors());
 
 // routes
 app.use("/api/auth", authRouter);
