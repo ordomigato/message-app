@@ -72,7 +72,7 @@ router.post(
       const hashedPassword = await bcrypt.hash(pw, 10);
 
       // insert into db
-      User.create({
+      const user = User.create({
         username,
         email,
         pw: hashedPassword,
@@ -89,6 +89,7 @@ router.post(
 
       const results = {
         token: `Bearer ${token}`,
+        user,
       };
 
       res.status(201).json({ results, msg: "Account Created", success: true });
@@ -138,8 +139,12 @@ router.post(
           process.env.JWT_SECRET_TOKEN
         );
 
+        // get user without password field
+        const returnedUser = await User.findOne({ where: { email } });
+
         const results = {
           token: `Bearer ${token}`,
+          user: returnedUser,
         };
 
         return res.status(200).json({

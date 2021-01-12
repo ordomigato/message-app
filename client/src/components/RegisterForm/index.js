@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
   TextField,
   FormControl,
@@ -42,6 +42,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const RegisterForm = () => {
+  const history = useHistory();
   const classes = useStyles();
   const { signup, logout, isAuthenticated } = useContext(UserContext);
 
@@ -121,11 +122,14 @@ const RegisterForm = () => {
     setSubmitButtonPressed(true);
     // if all valid, continue with signup
     if (isSignupInfoValid === true) {
-      signup(signupInfo).then(res =>
-        res.success === false
-          ? setRegisterErrors([res.msg])
-          : setRegisterErrors([])
-      );
+      signup(signupInfo).then(res => {
+        if (res.success === false) {
+          return setRegisterErrors([res.msg]);
+        } else {
+          setRegisterErrors([]);
+          history.push("/");
+        }
+      });
       return;
     } else {
       return;
