@@ -8,10 +8,10 @@ import {
   Container,
 } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
-import LargeButton from "../LargeButton";
+import LargeButton from "components/LargeButton";
 import { makeStyles } from "@material-ui/core/styles";
-import UserContext from "../../store/context/users";
-import { checkField, checkAllFields } from "../../utils/validation";
+import UserContext from "store/context/users";
+import { checkField, checkAllFields } from "utils/validation";
 
 const useStyles = makeStyles(() => ({
   root: {
