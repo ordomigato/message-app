@@ -97,7 +97,12 @@ router.get("/", userAuth, async (req, res) => {
           model: Conversation,
           as: "conversations",
           // just return last message for frontend
-          include: { model: Message, limit: 1, order: [["createdAt", "DESC"]] },
+          include: {
+            model: Message,
+            limit: 1,
+            order: [["createdAt", "DESC"]],
+            include: User,
+          },
         },
       ],
     });
@@ -127,7 +132,7 @@ router.get("/:id", userAuth, async (req, res) => {
           model: Conversation,
           as: "conversations",
           where: { id: req.params.id },
-          include: Message,
+          include: { model: Message, include: User },
         },
       ],
     });
