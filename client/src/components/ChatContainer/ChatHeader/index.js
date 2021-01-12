@@ -44,7 +44,7 @@ const ChatHeader = ({ currentConversation }) => {
       <Grid item>
         <Typography className={classes.name}>
           {currentConversation.participants.map(participant => (
-            <span key={participant.id}>{participant.name}</span>
+            <span key={participant.id}>{participant.username}</span>
           ))}
         </Typography>
       </Grid>

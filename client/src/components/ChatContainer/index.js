@@ -4,7 +4,7 @@ import ChatHeader from "./ChatHeader";
 import ChatHistory from "./ChatHistory";
 import ChatInput from "./ChatInput";
 import { makeStyles } from "@material-ui/core/styles";
-import ConversationContext from "../../store/context/conversations";
+import ConversationContext from "store/context/conversations";
 
 const useStyles = makeStyles(theme => ({
   container: {

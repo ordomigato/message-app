@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { InputBase } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import ConversationContext from "../../../store/context/conversations";
+import ConversationContext from "store/context/conversations";
 
 const useStyles = makeStyles(() => ({
   container: {
@@ -22,28 +22,23 @@ const useStyles = makeStyles(() => ({
 const ChatInput = ({ currentConversation }) => {
   const { sendMessage } = useContext(ConversationContext);
   const classes = useStyles();
-  const [msg, setMsg] = useState({
-    message: "",
-  });
+  const [msg, setMsg] = useState("");
 
   const onChange = e => {
-    setMsg({ ...msg, message: e.target.value });
+    setMsg(e.target.value);
   };
 
   const onSubmit = e => {
     e.preventDefault();
-    // add conversation id to msg object
-    msg.conversationId = currentConversation.id;
-    msg.sentBy = { id: 1, name: "George" };
     sendMessage(msg);
-    setMsg({ message: "" });
+    setMsg("");
   };
 
   return (
     <form className={classes.container} onSubmit={onSubmit}>
       <InputBase
         id="chat-input"
-        value={msg.message}
+        value={msg}
         onChange={onChange}
         label="chat-input"
         placeholder="Type something..."

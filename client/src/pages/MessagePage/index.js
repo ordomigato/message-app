@@ -1,6 +1,6 @@
 import React from "react";
-import ChatDrawer from "../../components/ChatDrawer";
-import ChatContainer from "../../components/ChatContainer";
+import ChatDrawer from "components/ChatDrawer";
+import ChatContainer from "components/ChatContainer";
 import { Container, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 

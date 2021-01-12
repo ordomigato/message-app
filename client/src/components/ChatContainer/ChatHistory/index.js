@@ -9,7 +9,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ChatHeader = ({ currentConversation }) => {
+const ChatHistory = ({ currentConversation }) => {
   const classes = useStyles();
 
   return (
@@ -19,7 +19,7 @@ const ChatHeader = ({ currentConversation }) => {
           // update when messages have unique ids
           key={i}
           // Update when authentication works to test current user ID
-          otherUser={message.sentBy.id === 1 ? false : true}
+          otherUser={message.User.id === 1 ? false : true}
           message={message}
         />
       ))}
@@ -27,4 +27,4 @@ const ChatHeader = ({ currentConversation }) => {
   );
 };
 
-export default ChatHeader;
+export default ChatHistory;
