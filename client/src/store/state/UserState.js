@@ -2,7 +2,6 @@ import React, { useReducer, useEffect } from "react";
 import axios from "axios";
 import UserContext from "../context/users";
 import userReducer from "../reducer/users";
-import jwt from "jwt-decode";
 import setAuthToken from "../../utils/setAuthToken";
 
 import {
@@ -17,7 +16,6 @@ import {
 
 const UserState = props => {
   const initialState = {
-    token: localStorage.getItem("token"),
     isAuthenticated: false,
     user: {},
     loading: true,
@@ -34,13 +32,8 @@ const UserState = props => {
 
       const body = JSON.stringify(user);
 
-      const res = await axios.post(
-        "http://localhost:3001/api/auth/signup",
-        body,
-        config
-      );
-      // decode user and preserve JWT for reducer
-      res.data.results.user = jwt(res.data.results.token);
+      const res = await axios.post("/api/auth/signup", body, config);
+
       dispatch({
         type: SIGNUP_SUCCESS,
         payload: res.data.results,
@@ -65,14 +58,8 @@ const UserState = props => {
 
       const body = JSON.stringify(user);
 
-      const res = await axios.post(
-        "http://localhost:3001/api/auth/login",
-        body,
-        config
-      );
+      const res = await axios.post("/api/auth/login", body, config);
 
-      // decode user and preserve JWT for reducer
-      res.data.results.user = jwt(res.data.results.token);
       dispatch({
         type: LOGIN_SUCCESS,
         payload: res.data.results,
@@ -83,7 +70,7 @@ const UserState = props => {
       dispatch({
         type: LOGIN_FAIL,
       });
-      return { error: err.msg };
+      return err.response.data;
     }
   };
 
@@ -94,7 +81,7 @@ const UserState = props => {
     }
 
     try {
-      const res = await axios.get("http://localhost:3001/api/auth");
+      const res = await axios.get("/api/auth");
 
       dispatch({
         type: AUTH_SUCCESS,

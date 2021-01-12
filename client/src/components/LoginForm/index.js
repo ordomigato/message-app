@@ -48,8 +48,8 @@ const LoginForm = () => {
   const handleLogin = e => {
     e.preventDefault();
     login(loginInfo).then(res => {
-      if (res.error) {
-        return setLoginErrors([res.error]);
+      if (res.success === false) {
+        return setLoginErrors([res.msg]);
       } else {
         setLoginErrors([]);
         history.push("/");
