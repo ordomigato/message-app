@@ -9,7 +9,7 @@ const opts = {
 module.exports = passport => {
   passport.use(
     new Strategy(opts, async (payload, done) => {
-      await User.findOne({ where: { email: payload.email } })
+      await User.findOne({ where: { id: payload.id } })
         .then(async user => {
           if (user) {
             return done(null, user);

@@ -8,7 +8,6 @@ const {
   User_Conversation,
   Message,
 } = require("../db/models");
-const conversation = require("../db/models/conversation");
 
 const serverErrorHandler = (msg, res) => {
   res.status(500).json({
@@ -53,7 +52,7 @@ router.post(
       }
 
       // create conversation
-      const convo = await Conversation.create({ createdBy: convoCreator.id });
+      const convo = await Conversation.create();
 
       // prepare to add participants
       participants.push(convoCreator.id); // include conversation creator as a participant
@@ -97,11 +96,23 @@ router.get("/", userAuth, async (req, res) => {
           model: Conversation,
           as: "conversations",
           // just return last message for frontend
-          include: {
-            model: Message,
-            limit: 1,
-            order: [["createdAt", "DESC"]],
-            include: User,
+          include: [
+            {
+              model: Message,
+              limit: 1,
+              order: [["createdAt", "DESC"]],
+              include: { model: User, as: "userInfo" },
+            },
+            {
+              model: User,
+              as: "participants",
+              through: {
+                attributes: [],
+              },
+            },
+          ],
+          through: {
+            attributes: [],
           },
         },
       ],
@@ -109,8 +120,11 @@ router.get("/", userAuth, async (req, res) => {
     // return results
     return res.status(200).json({
       success: true,
-      message: "Conversations found",
-      results,
+      message:
+        results.conversations.length > 0
+          ? "Conversations found"
+          : "No conversations found",
+      results: results.conversations,
     });
   } catch (err) {
     return serverErrorHandler(
@@ -132,17 +146,35 @@ router.get("/:id", userAuth, async (req, res) => {
           model: Conversation,
           as: "conversations",
           where: { id: req.params.id },
-          include: { model: Message, include: User },
+          include: [
+            {
+              model: Message,
+              limit: 30,
+              order: [["createdAt", "DESC"]],
+              include: { model: User, as: "userInfo" },
+            },
+            {
+              model: User,
+              as: "participants",
+              through: {
+                attributes: [],
+              },
+            },
+          ],
+          through: {
+            attributes: [],
+          },
         },
       ],
     });
     // return results
     return res.status(200).json({
       success: true,
-      message: "Conversation found",
+      message: results ? "Conversation found" : "Conversation not found",
       results,
     });
   } catch (err) {
+    console.log(err);
     return serverErrorHandler("SERVER ERROR: could not find conversation", res);
   }
 });
@@ -150,16 +182,32 @@ router.get("/:id", userAuth, async (req, res) => {
 // @route       DELETE api/conversations/:id
 // @desc        delete a conversation
 // @access      Authenticated
-router.delete("/:id", userAuth, (req, res) => {
+router.delete("/:id", userAuth, async (req, res) => {
   try {
-    conversation.destroy({
-      where: { id: req.params.id, createdBy: req.user.id },
+    const convo = await Conversation.findOne({
+      where: { id: req.params.id },
+      include: { model: User, as: "participants" },
     });
+
+    // check if user belongs to conversation
+    const isParticipant = convo.participants.some(p => p.id === req.user.id);
+
+    if (!isParticipant) {
+      return res.status(401).json({
+        success: false,
+        message: "Not a participant of this conversation",
+      });
+    }
+
+    // delete conversation
+    await convo.destroy();
+
     return res.status(200).json({
       success: true,
       message: "Conversation deleted",
     });
   } catch (err) {
+    console.log(err);
     return serverErrorHandler(
       "SERVER ERROR: could not delete conversation",
       res
