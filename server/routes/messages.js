@@ -64,7 +64,6 @@ router.delete("/:messageId", userAuth, async (req, res) => {
     const message = await Message.findOne({
       where: {
         id: req.params.messageId,
-        createdBy: req.user.id,
       },
     });
 
@@ -72,6 +71,14 @@ router.delete("/:messageId", userAuth, async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "No message Found",
+      });
+    }
+
+    // check if user is owner of comment
+    if (message.createdBy !== req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not the owner of this comment",
       });
     }
 
