@@ -72,7 +72,7 @@ router.post(
       const hashedPassword = await bcrypt.hash(pw, 10);
 
       // insert into db
-      const user = User.create({
+      const user = await User.create({
         username,
         email,
         pw: hashedPassword,
@@ -81,8 +81,7 @@ router.post(
       // create token
       const token = jwt.sign(
         {
-          username,
-          email,
+          id: user.id,
         },
         process.env.JWT_SECRET_TOKEN
       );
@@ -94,7 +93,7 @@ router.post(
 
       res.status(201).json({ results, msg: "Account Created", success: true });
     } catch (err) {
-      return serverErrorHandler("SERVER ERROR: could not create user");
+      return serverErrorHandler("SERVER ERROR: could not create user", res);
     }
   }
 );
@@ -133,8 +132,7 @@ router.post(
         // create token
         const token = jwt.sign(
           {
-            username: user.username,
-            email: user.email,
+            id: user.id,
           },
           process.env.JWT_SECRET_TOKEN
         );
@@ -158,7 +156,7 @@ router.post(
           .json({ msg: "Incorrect credentials", success: false });
       }
     } catch (err) {
-      return serverErrorHandler("SERVER ERROR: unable to login");
+      return serverErrorHandler("SERVER ERROR: unable to login", res);
     }
   }
 );
