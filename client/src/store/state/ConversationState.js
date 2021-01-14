@@ -1,64 +1,85 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useCallback } from "react";
 import ConversationContext from "../context/conversations";
 import conversationReducer from "../reducer/conversations";
-import JackImage from "../../assets/img/jack.png";
-import JillImage from "../../assets/img/jill.png";
+import {
+  SEND_MESSAGE_SUCCESS,
+  CREATE_CONVERSATION_SUCCESS,
+  CREATE_CONVERSATION_FAIL,
+  GET_CONVERSATIONS_FAIL,
+  GET_CONVERSATIONS_SUCCESS,
+  GET_CONVERSATION_FAIL,
+  GET_CONVERSATION_SUCCESS,
+} from "../constants";
+import axios from "axios";
 
-import { CHANGE_CONVERSATION, SEND_MESSAGE_SUCCESS } from "../constants";
-
-const ConversationState = props => {
+const ConversationState = (props) => {
   const initialState = {
     // Remove once we can work with real data
-    conversations: [
-      {
-        id: 1,
-        participants: [{ id: 4321, username: "Jack", profileImage: JackImage }],
-        messages: [
-          {
-            message: "Ready yet?",
-            createdAt: "10:01",
-            createdBy: 4321,
-            User: {
-              id: 4321,
-              username: "Jack",
-              profileImage: JackImage,
-            },
-          },
-        ],
-      },
-      {
-        id: 2,
-        participants: [{ id: 1234, username: "Jill", profileImage: JillImage }],
-        messages: [
-          {
-            message: "How's it going?",
-            createdAt: "10:04",
-            createdBy: 1234,
-            User: {
-              id: 1234,
-              username: "Jill",
-              profileImage: JillImage,
-            },
-          },
-        ],
-      },
-    ],
+    conversations: [],
     openedConversation: null,
+    loading: true,
   };
 
   // send message
-  const sendMessage = msg => {
-    dispatch({
-      type: SEND_MESSAGE_SUCCESS,
-      payload: msg,
-    });
+  const sendMessage = (msg) => {
+    console.log(msg);
   };
 
-  const changeConversation = conversationId => {
-    dispatch({
-      type: CHANGE_CONVERSATION,
-      payload: conversationId,
-    });
+  // get multiple conversations
+  const getConversations = useCallback(async () => {
+    try {
+      const res = await axios.get("/api/conversations");
+      dispatch({
+        type: GET_CONVERSATIONS_SUCCESS,
+        payload: res.data.results,
+      });
+    } catch (err) {
+      dispatch({
+        type: GET_CONVERSATIONS_FAIL,
+      });
+    }
+  }, []);
+
+  // get a single conversation
+  const getConversation = async (id) => {
+    try {
+      const res = await axios.get(`/api/conversations/${id}`);
+
+      dispatch({ type: GET_CONVERSATION_SUCCESS, payload: res.data.results });
+    } catch (err) {
+      dispatch({
+        type: GET_CONVERSATION_FAIL,
+      });
+    }
+  };
+
+  const createConversation = async (participants) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const body = JSON.stringify({ participants: participants });
+
+      const res = await axios.post("/api/conversations", body, config);
+
+      dispatch({
+        type: CREATE_CONVERSATION_SUCCESS,
+        payload: res.data.results,
+      });
+    } catch (err) {
+      // if results.foundConvoId exists, the conversation already existed
+      if (err.response.data.results) {
+        getConversation(err.response.data.results.foundConvoId);
+        return;
+      }
+
+      dispatch({
+        type: CREATE_CONVERSATION_FAIL,
+      });
+    }
   };
 
   const [state, dispatch] = useReducer(conversationReducer, initialState);
@@ -67,7 +88,9 @@ const ConversationState = props => {
       value={{
         conversations: state.conversations,
         openedConversation: state.openedConversation,
-        changeConversation,
+        getConversation,
+        getConversations,
+        createConversation,
         sendMessage,
       }}
     >

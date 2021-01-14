@@ -16,6 +16,15 @@ const serverErrorHandler = (msg, res) => {
   });
 };
 
+const participantIdentifierCreator = (array) => {
+  // process array and create unique identifier
+  const string = array
+    .sort((a, b) => a - b)
+    .toString()
+    .replace(/,/g, ":");
+  return string;
+};
+
 // @route       POST api/conversations
 // @desc        Create new conversation
 // @access      Authenticated
@@ -40,25 +49,30 @@ router.post(
     const { participants } = req.body;
 
     try {
-      // find user to make sure they exist
-      const convoCreator = await User.findOne({
-        where: { id: req.user.id },
+      // add reqyestubg yser ti oartucuoabt arrat
+      participants.push(req.user.id);
+
+      // create unique identifier string based on participants' ID
+      const convoIdentifier = participantIdentifierCreator(participants);
+
+      // check if conversation already exists
+      const convoExists = await Conversation.findOne({
+        where: { convoIdentifier },
       });
-      if (!convoCreator) {
-        return res.status(400).json({
-          msg: "User not found",
+
+      if (convoExists) {
+        return res.status(409).json({
           success: false,
+          message: "conversation found",
+          results: { foundConvoId: convoExists.id },
         });
       }
 
       // create conversation
-      const convo = await Conversation.create();
-
-      // prepare to add participants
-      participants.push(convoCreator.id); // include conversation creator as a participant
+      const convo = await Conversation.create({ convoIdentifier });
 
       // format data to be inserted
-      const userConversationData = participants.map(participant => ({
+      const userConversationData = participants.map((participant) => ({
         userId: participant,
         conversationId: convo.id,
       }));
@@ -66,10 +80,17 @@ router.post(
       // add participants
       await User_Conversation.bulkCreate(userConversationData);
 
-      // find conversation and return it
+      //  retrieve conversation and return it
       const results = await Conversation.findOne({
         where: { id: convo.id },
-        include: { model: User, as: "participants" },
+        include: [
+          { model: User, as: "participants" },
+          {
+            // messages array will be empty
+            model: Message,
+            as: "messages",
+          },
+        ],
       });
 
       // return results
@@ -79,6 +100,7 @@ router.post(
         results,
       });
     } catch (err) {
+      console.log(err);
       return serverErrorHandler("SERVER ERROR: could create conversation", res);
     }
   }
@@ -99,6 +121,7 @@ router.get("/", userAuth, async (req, res) => {
           include: [
             {
               model: Message,
+              as: "messages",
               limit: 1,
               order: [["createdAt", "DESC"]],
               include: { model: User, as: "userInfo" },
@@ -127,6 +150,7 @@ router.get("/", userAuth, async (req, res) => {
       results: results.conversations,
     });
   } catch (err) {
+    console.log(err);
     return serverErrorHandler(
       "SERVER ERROR: could not find all conversations",
       res
@@ -139,34 +163,39 @@ router.get("/", userAuth, async (req, res) => {
 // @access      Authenticated
 router.get("/:id", userAuth, async (req, res) => {
   try {
-    const results = await User.findOne({
+    const results = await Conversation.findOne({
       where: { id: req.params.id },
       include: [
         {
-          model: Conversation,
-          as: "conversations",
-          where: { id: req.params.id },
-          include: [
-            {
-              model: Message,
-              limit: 30,
-              order: [["createdAt", "DESC"]],
-              include: { model: User, as: "userInfo" },
-            },
-            {
-              model: User,
-              as: "participants",
-              through: {
-                attributes: [],
-              },
-            },
-          ],
+          model: Message,
+          as: "messages",
+          limit: 30,
+          order: [["createdAt", "DESC"]],
+        },
+        {
+          model: User,
+          as: "participants",
+          // cleanup
           through: {
             attributes: [],
           },
         },
       ],
+      // cleanup
+      through: {
+        attributes: [],
+      },
     });
+
+    if (!results) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Not a participant" });
+    }
+
+    // reverse messages on return
+    results.messages.reverse();
+
     // return results
     return res.status(200).json({
       success: true,
@@ -190,7 +219,7 @@ router.delete("/:id", userAuth, async (req, res) => {
     });
 
     // check if user belongs to conversation
-    const isParticipant = convo.participants.some(p => p.id === req.user.id);
+    const isParticipant = convo.participants.some((p) => p.id === req.user.id);
 
     if (!isParticipant) {
       return res.status(401).json({

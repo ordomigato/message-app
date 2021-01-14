@@ -24,12 +24,12 @@ const useStyles = makeStyles(() => ({
 }));
 
 const ChatUserCard = ({ conversation }) => {
-  const { changeConversation } = useContext(ConversationContext);
+  const { getConversation } = useContext(ConversationContext);
   const { user } = useContext(UserContext);
   const classes = useStyles();
 
-  const onClick = e => {
-    changeConversation(conversation.id);
+  const onClick = (e) => {
+    getConversation(conversation.id);
   };
 
   return (
@@ -43,7 +43,7 @@ const ChatUserCard = ({ conversation }) => {
         <UserAvatar
           image={
             // find first participant that isn't you
-            conversation.participants.find(p => p.id !== user.id).profileImage
+            conversation.participants.find((p) => p.id !== user.id).profileImage
           }
         />
       </Grid>
@@ -51,18 +51,21 @@ const ChatUserCard = ({ conversation }) => {
         <Typography className={classes.name}>
           {conversation.participants.map((p, i) => (
             <span key={p.id}>
-              {p.username}
-              {i === conversation.participants.length - 1 ? "" : ", "}
+              {p.id === user.id ? null : p.username}
+              {i === conversation.participants.length - 2 ? "" : " "}
             </span>
           ))}
         </Typography>
 
         <Typography className={classes.message}>
-          {conversation.messages[0].message}
+          {conversation.messages[0]
+            ? conversation.messages[conversation.messages.length - 1].message
+            : "Start conversation..."}
         </Typography>
       </Grid>
       <Grid item>
-        <Badge badgeContent={3} showZero={false} color="primary" />
+        {/* TODO update based on tracker */}
+        <Badge badgeContent={0} showZero={false} color="primary" />
       </Grid>
     </Grid>
   );

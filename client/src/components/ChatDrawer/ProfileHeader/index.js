@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Grid, Typography, IconButton } from "@material-ui/core";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { makeStyles } from "@material-ui/core/styles";
 import UserAvatar from "components/UserAvatar";
+import UserContext from "store/context/users";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     marginBottom: "30px",
   },
@@ -25,11 +26,12 @@ const useStyles = makeStyles(theme => ({
 
 const ProfileHeader = () => {
   const classes = useStyles();
+  const { user } = useContext(UserContext);
 
   return (
     <Grid container alignItems="center" className={classes.container}>
-      <UserAvatar status={"online"} name={"Carl"} />
-      <Typography className={classes.name}>Carl</Typography>
+      <UserAvatar status={"online"} name={user.username} />
+      <Typography className={classes.name}>{user.username}</Typography>
       <IconButton className={classes.iconButton}>
         <MoreHorizIcon className={classes.icon} />
       </IconButton>
