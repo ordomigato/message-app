@@ -30,7 +30,7 @@ const ProfileHeader = () => {
 
   return (
     <Grid container alignItems="center" className={classes.container}>
-      <UserAvatar status={"online"} name={user.username} />
+      <UserAvatar id={user.id} name={user.username} />
       <Typography className={classes.name}>{user.username}</Typography>
       <IconButton className={classes.iconButton}>
         <MoreHorizIcon className={classes.icon} />

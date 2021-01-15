@@ -1,6 +1,8 @@
-import React, { useReducer, useCallback } from "react";
+import React, { useReducer, useCallback, useContext, useEffect } from "react";
+import setAuthToken from "../../utils/setAuthToken";
 import ConversationContext from "../context/conversations";
 import conversationReducer from "../reducer/conversations";
+import { SocketContext } from "socket";
 import {
   SEND_MESSAGE_SUCCESS,
   CREATE_CONVERSATION_SUCCESS,
@@ -20,13 +22,30 @@ const ConversationState = (props) => {
     loading: true,
   };
 
+  const socket = useContext(SocketContext);
+
+  useEffect(() => {
+    socket.on("new-message", (message) => {
+      dispatch({
+        type: SEND_MESSAGE_SUCCESS,
+        payload: message,
+      });
+    });
+  }, [socket]);
+
   // send message
-  const sendMessage = (msg) => {
-    console.log(msg);
+  const sendMessage = (msg, conversationId) => {
+    const message = { text: msg, conversationId };
+    socket.emit("new-message", message);
   };
 
   // get multiple conversations
   const getConversations = useCallback(async () => {
+    // needed as initial load will not attach authorization header
+    if (localStorage.token) {
+      setAuthToken(localStorage.token);
+    }
+
     try {
       const res = await axios.get("/api/conversations");
       dispatch({

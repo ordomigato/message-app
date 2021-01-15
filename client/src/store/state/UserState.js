@@ -14,6 +14,7 @@ import {
   LOGOUT,
   SEARCH_USERS_CLEAR,
   SEARCH_USERS_SUCCESSFUL,
+  SET_ONLINE_USERS,
 } from "../constants";
 
 const UserState = (props) => {
@@ -119,10 +120,19 @@ const UserState = (props) => {
   }, []);
 
   const logout = () => {
+    // refresh page to reset data
+    window.location.reload();
     dispatch({
       type: LOGOUT,
     });
   };
+
+  const setOnlineUsers = useCallback((users) => {
+    dispatch({
+      type: SET_ONLINE_USERS,
+      payload: users,
+    });
+  }, []);
 
   useEffect(() => {
     loadUser();
@@ -135,6 +145,8 @@ const UserState = (props) => {
         isAuthenticated: state.isAuthenticated,
         user: state.user,
         users: state.users,
+        onlineUsers: state.onlineUsers,
+        setOnlineUsers,
         findUsers,
         signup,
         login,

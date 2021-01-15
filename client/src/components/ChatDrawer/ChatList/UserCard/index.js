@@ -34,7 +34,10 @@ const UserCard = ({ user }) => {
   return (
     <Grid container className={classes.container} alignItems="center">
       <Grid item>
-        <UserAvatar image={user.profileImage ? user.profileImage : null} />
+        <UserAvatar
+          image={user.profileImage ? user.profileImage : null}
+          id={user.id}
+        />
       </Grid>
       <Grid item className={classes.userInfo}>
         <Typography className={classes.name}>{user.username}</Typography>

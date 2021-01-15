@@ -7,6 +7,7 @@ export const SIGNUP_FAIL = "SIGNUP_FAIL";
 export const AUTH_SUCCESS = "AUTH_SUCCESS";
 export const AUTH_ERROR = "AUTH_ERROR";
 export const LOGOUT = "LOGOUT";
+export const SET_ONLINE_USERS = "SET_ONLINE_USERS";
 // Conversation / Message constants
 export const SEND_MESSAGE_SUCCESS = "SEND_MESSAGE_SUCCESS";
 export const GET_CONVERSATIONS_SUCCESS = "GET_CONVERSATIONS_SUCCESS";

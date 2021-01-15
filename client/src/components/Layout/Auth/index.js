@@ -3,7 +3,7 @@ import AuthBanner from "components/AuthBanner";
 import { Container, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     padding: 0,
@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const AuthLayout = props => {
+const AuthLayout = (props) => {
   const classes = useStyles();
 
   return (

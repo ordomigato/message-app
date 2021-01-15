@@ -6,8 +6,6 @@ import {
   GET_CONVERSATIONS_FAIL,
   GET_CONVERSATION_FAIL,
   GET_CONVERSATION_SUCCESS,
-  SEARCH_USERS_SUCCESSFUL,
-  SEARCH_USERS_CLEAR,
 } from "../constants";
 
 const conversationReducer = (state, action) => {
@@ -50,25 +48,16 @@ const conversationReducer = (state, action) => {
         ...state,
         loading: false,
       };
-    case SEARCH_USERS_SUCCESSFUL:
-      return {
-        ...state,
-        foundUsers: payload,
-        loading: false,
-      };
-    case SEARCH_USERS_CLEAR:
-      return {
-        ...state,
-        foundUsers: [],
-        loading: false,
-      };
     case SEND_MESSAGE_SUCCESS:
       return {
         ...state,
-        openedConversation: {
-          ...state.openedConversation,
-          messages: [...state.openedConversation.messages, payload],
-        },
+        openedConversation:
+          state.openedConversation === null
+            ? null
+            : {
+                ...state.openedConversation,
+                messages: [...state.openedConversation.messages, payload],
+              },
         conversations: state.conversations.map((c) =>
           c.id === payload.conversationId
             ? { ...c, messages: [...c.messages, payload] }

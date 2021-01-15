@@ -171,6 +171,7 @@ router.get("/:id", userAuth, async (req, res) => {
           as: "messages",
           limit: 30,
           order: [["createdAt", "DESC"]],
+          include: { model: User, as: "userInfo" },
         },
         {
           model: User,

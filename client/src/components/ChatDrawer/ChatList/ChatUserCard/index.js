@@ -45,6 +45,7 @@ const ChatUserCard = ({ conversation }) => {
             // find first participant that isn't you
             conversation.participants.find((p) => p.id !== user.id).profileImage
           }
+          id={conversation.participants.find((p) => p.id !== user.id).id}
         />
       </Grid>
       <Grid item className={classes.userInfo}>

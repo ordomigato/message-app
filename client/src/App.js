@@ -9,26 +9,29 @@ import MessagePage from "./pages/MessagePage";
 
 import UserState from "./store/state/UserState";
 import ConversationState from "./store/state/ConversationState";
+import SocketState from "./socket";
 
 import "./App.css";
 
 function App() {
   return (
-    <UserState>
-      <ConversationState>
-        <MuiThemeProvider theme={theme}>
-          <BrowserRouter>
-            <Switch>
-              <PrivateRoute exact path="/">
-                <MessagePage />
-              </PrivateRoute>
-              <Route exact path="/signup" component={SignupPage} />
-              <Route exact path="/login" component={LoginPage} />
-            </Switch>
-          </BrowserRouter>
-        </MuiThemeProvider>
-      </ConversationState>
-    </UserState>
+    <SocketState>
+      <UserState>
+        <ConversationState>
+          <MuiThemeProvider theme={theme}>
+            <BrowserRouter>
+              <Switch>
+                <PrivateRoute exact path="/">
+                  <MessagePage />
+                </PrivateRoute>
+                <Route exact path="/signup" component={SignupPage} />
+                <Route exact path="/login" component={LoginPage} />
+              </Switch>
+            </BrowserRouter>
+          </MuiThemeProvider>
+        </ConversationState>
+      </UserState>
+    </SocketState>
   );
 }
 
