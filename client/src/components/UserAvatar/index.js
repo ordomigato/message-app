@@ -11,7 +11,6 @@ const UserAvatar = ({ image, name, id }) => {
   useEffect(() => {
     if (!onlineUsers) return;
     const isOnline = onlineUsers.includes(id);
-    console.log(onlineUsers, id, isOnline);
     setOnline(isOnline);
   }, [onlineUsers, id]);
 

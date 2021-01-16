@@ -18,15 +18,16 @@ const serverErrorHandler = (msg, res) => {
 router.get("/username/:username", userAuth, async (req, res) => {
   try {
     const users = await User.findAll({
-      where: { username: { [Op.like]: "%" + req.params.username + "%" } },
+      where: {
+        username: { [Op.like]: "%" + req.params.username + "%" },
+        id: { [Op.not]: req.user.id },
+      },
     });
-    return res
-      .status(200)
-      .json({
-        message: users.length > 0 ? "Users found" : "No users found",
-        success: true,
-        users,
-      });
+    return res.status(200).json({
+      message: users.length > 0 ? "Users found" : "No users found",
+      success: true,
+      users,
+    });
   } catch (err) {
     console.log(err);
     return serverErrorHandler(

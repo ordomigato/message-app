@@ -1,8 +1,9 @@
-import React, { useReducer, useEffect, useCallback } from "react";
+import React, { useReducer, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import UserContext from "../context/users";
 import userReducer from "../reducer/users";
 import setAuthToken from "../../utils/setAuthToken";
+import { SocketContext } from "socket";
 
 import {
   LOGIN_FAIL,
@@ -23,7 +24,15 @@ const UserState = (props) => {
     user: {},
     users: [],
     loading: true,
+    onlineUsers: [],
   };
+
+  const setOnlineUsers = useCallback((users) => {
+    dispatch({
+      type: SET_ONLINE_USERS,
+      payload: users,
+    });
+  }, []);
 
   // signup action
   const signup = async (user) => {
@@ -120,19 +129,10 @@ const UserState = (props) => {
   }, []);
 
   const logout = () => {
-    // refresh page to reset data
-    window.location.reload();
     dispatch({
       type: LOGOUT,
     });
   };
-
-  const setOnlineUsers = useCallback((users) => {
-    dispatch({
-      type: SET_ONLINE_USERS,
-      payload: users,
-    });
-  }, []);
 
   useEffect(() => {
     loadUser();

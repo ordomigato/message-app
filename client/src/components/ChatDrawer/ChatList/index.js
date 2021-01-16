@@ -23,8 +23,6 @@ const ChatList = () => {
         !c ? null : <ChatUserCard conversation={c} key={c.convoIdentifier} />
       )}
       {users.map((u) => {
-        // remove current logged in user from results
-        if (u.id === currentUser.id) return null;
         return <UserCard user={u} key={u.id} />;
       })}
     </Grid>

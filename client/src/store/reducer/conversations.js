@@ -6,6 +6,7 @@ import {
   GET_CONVERSATIONS_FAIL,
   GET_CONVERSATION_FAIL,
   GET_CONVERSATION_SUCCESS,
+  RESET_CONVERSATIONS,
 } from "../constants";
 
 const conversationReducer = (state, action) => {
@@ -63,6 +64,10 @@ const conversationReducer = (state, action) => {
             ? { ...c, messages: [...c.messages, payload] }
             : c
         ),
+      };
+    case RESET_CONVERSATIONS:
+      return {
+        payload,
       };
     default:
       return state;

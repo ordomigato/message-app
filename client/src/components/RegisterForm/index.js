@@ -11,6 +11,7 @@ import MuiAlert from "@material-ui/lab/Alert";
 import LargeButton from "components/LargeButton";
 import { makeStyles } from "@material-ui/core/styles";
 import UserContext from "store/context/users";
+import ConversationContext from "store/context/conversations";
 import { checkField, checkAllFields } from "utils/validation";
 
 const useStyles = makeStyles(() => ({
@@ -45,6 +46,7 @@ const RegisterForm = () => {
   const history = useHistory();
   const classes = useStyles();
   const { signup, logout, isAuthenticated } = useContext(UserContext);
+  const { resetConversationContext } = useContext(ConversationContext);
 
   const [registerErrors, setRegisterErrors] = useState([]);
   const [submitButtonPressed, setSubmitButtonPressed] = useState(false);
@@ -78,7 +80,7 @@ const RegisterForm = () => {
   // easier access
   const { username, email, pw, confirmPw } = signupInfo;
 
-  const updateState = e => {
+  const updateState = (e) => {
     // extract name (used as key) and value
     const { name: key, value } = e.target;
     // update global state
@@ -88,7 +90,7 @@ const RegisterForm = () => {
   const validate = () => {
     // perform validation
     let isValidResults = {};
-    Object.keys(signupInfo).forEach(key => {
+    Object.keys(signupInfo).forEach((key) => {
       const isValidString = `${key}IsValid`;
       const { isSuccess, errorMsg } = checkField(key, signupInfo[key]);
       // add results to isValidResults
@@ -113,7 +115,7 @@ const RegisterForm = () => {
     return checkAllFields(isValidResults);
   };
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
     // clear registerErrors
     setRegisterErrors([]);
@@ -122,7 +124,7 @@ const RegisterForm = () => {
     setSubmitButtonPressed(true);
     // if all valid, continue with signup
     if (isSignupInfoValid === true) {
-      signup(signupInfo).then(res => {
+      signup(signupInfo).then((res) => {
         if (res.success === false) {
           return setRegisterErrors([res.msg]);
         } else {
@@ -136,10 +138,16 @@ const RegisterForm = () => {
     }
   };
 
+  const startLogout = () => {
+    logout();
+    resetConversationContext();
+    history.push("/login");
+  };
+
   return (
     <Container component="section" className={classes.root}>
       {isAuthenticated ? (
-        <LargeButton onClick={logout}>Logout</LargeButton>
+        <LargeButton onClick={startLogout}>Logout</LargeButton>
       ) : (
         <>
           <Grid
@@ -170,7 +178,7 @@ const RegisterForm = () => {
                 {error}
               </MuiAlert>
             ))}
-            <form method="post" onSubmit={e => onSubmit(e)}>
+            <form method="post" onSubmit={(e) => onSubmit(e)}>
               <FormControl variant="outlined" fullWidth margin="normal">
                 <TextField
                   className={classes.textField}

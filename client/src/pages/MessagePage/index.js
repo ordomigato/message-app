@@ -13,16 +13,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MessagePage = (props) => {
+const MessagePage = () => {
   const classes = useStyles();
   const { user, setOnlineUsers } = useContext(UserContext);
-  const socket = useContext(SocketContext);
+  const { socket, connectSocket } = useContext(SocketContext);
 
   useEffect(() => {
-    socket.emit("user-online", user);
-    socket.on("user-online", (users) => setOnlineUsers(users));
+    if (user) {
+      connectSocket(true);
+      socket.emit("user-online", user);
+
+      socket.on("user-online", (onlineUsers) => {
+        console.log("online:", onlineUsers);
+        setOnlineUsers(onlineUsers);
+      });
+    }
+
     return socket.on("disconnect", user);
-  }, [socket, setOnlineUsers, user]);
+  }, [connectSocket, socket, setOnlineUsers, user]);
 
   return (
     <Container component="main" maxWidth={false} className={classes.root}>

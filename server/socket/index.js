@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
-const { Message, User } = require("../db/models");
+const { Message, User, User_Conversation } = require("../db/models");
 
-let onlineUsers = new Set();
+const onlineUsers = new Set();
 
 const socketio = (io) => {
   // middleware
@@ -10,12 +10,14 @@ const socketio = (io) => {
       const token = socket.handshake.query.token.replace("Bearer ", "");
       jwt.verify(token, process.env.JWT_SECRET_TOKEN, (err, decoded) => {
         if (err) {
+          console.log(err);
           return next(new Error("Authentication error"));
         }
         socket.decoded = decoded;
         next();
       });
     } else {
+      console.log("error");
       next(new Error("Authentication error"));
     }
   });
@@ -26,10 +28,22 @@ const socketio = (io) => {
       console.log("new user", socket.decoded);
       socket.userId = socket.decoded.id;
       onlineUsers.add(socket.decoded.id);
-      io.emit("user-online", [...onlineUsers]);
+      console.log(onlineUsers);
+      io.emit("user-online", Array.from(onlineUsers));
     });
 
     socket.on("new-message", async (newMessage) => {
+      // check if user is part of conversation
+      const isParticipant = await User_Conversation.findOne({
+        where: {
+          conversationId: newMessage.conversationId,
+          userId: socket.decoded.id,
+        },
+      });
+
+      // return if not participant
+      if (!isParticipant) return;
+
       // create message
       const message = await Message.create({
         conversationId: newMessage.conversationId,
@@ -53,7 +67,7 @@ const socketio = (io) => {
     socket.on("disconnect", () => {
       // remove user from onlineUsers
       onlineUsers.delete(socket.userId);
-      io.emit("user-online", [...onlineUsers]);
+      io.emit("user-online", Array.from(onlineUsers));
       console.log("socket disconnected", socket.userId);
     });
   });

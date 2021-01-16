@@ -11,6 +11,7 @@ import {
   GET_CONVERSATIONS_SUCCESS,
   GET_CONVERSATION_FAIL,
   GET_CONVERSATION_SUCCESS,
+  RESET_CONVERSATIONS,
 } from "../constants";
 import axios from "axios";
 
@@ -22,9 +23,17 @@ const ConversationState = (props) => {
     loading: true,
   };
 
-  const socket = useContext(SocketContext);
+  const resetConversationState = () => {
+    dispatch({
+      payload: initialState,
+      type: RESET_CONVERSATIONS,
+    });
+  };
+
+  const { socket, isConnected } = useContext(SocketContext);
 
   useEffect(() => {
+    if (!isConnected) return;
     socket.on("new-message", (message) => {
       dispatch({
         type: SEND_MESSAGE_SUCCESS,
@@ -111,6 +120,7 @@ const ConversationState = (props) => {
         getConversations,
         createConversation,
         sendMessage,
+        resetConversationState,
       }}
     >
       {props.children}
