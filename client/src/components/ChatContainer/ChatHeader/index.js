@@ -50,7 +50,7 @@ const ChatHeader = () => {
       .filter((p) => p.id !== user.id)
       .map((p) => p.id);
     setIsOnline(participantIds.some((id) => onlineUsers.includes(id)));
-  }, [onlineUsers, openedConversation]);
+  }, [onlineUsers, openedConversation, user]);
 
   return (
     <Grid container className={classes.container} alignItems="center">
