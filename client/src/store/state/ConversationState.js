@@ -33,14 +33,15 @@ const ConversationState = (props) => {
   const { socket, isConnected } = useContext(SocketContext);
 
   useEffect(() => {
-    if (!isConnected) return;
-    socket.on("new-message", (message) => {
-      dispatch({
-        type: SEND_MESSAGE_SUCCESS,
-        payload: message,
+    if (isConnected && socket !== null) {
+      socket.on("new-message", (message) => {
+        dispatch({
+          type: SEND_MESSAGE_SUCCESS,
+          payload: message,
+        });
       });
-    });
-  }, [socket]);
+    }
+  }, [socket, isConnected]);
 
   // send message
   const sendMessage = (msg, conversationId) => {

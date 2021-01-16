@@ -57,7 +57,10 @@ const conversationReducer = (state, action) => {
             ? null
             : {
                 ...state.openedConversation,
-                messages: [...state.openedConversation.messages, payload],
+                messages:
+                  state.openedConversation.id === payload.conversationId
+                    ? [...state.openedConversation.messages, payload]
+                    : [...state.openedConversation.messages],
               },
         conversations: state.conversations.map((c) =>
           c.id === payload.conversationId

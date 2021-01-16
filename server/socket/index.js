@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { Message, User, User_Conversation } = require("../db/models");
 
-const onlineUsers = new Set();
+const onlineUsers = {};
 
 const socketio = (io) => {
   // middleware
@@ -27,19 +27,25 @@ const socketio = (io) => {
     socket.on("user-online", () => {
       console.log("new user", socket.decoded);
       socket.userId = socket.decoded.id;
-      onlineUsers.add(socket.decoded.id);
-      console.log(onlineUsers);
-      io.emit("user-online", Array.from(onlineUsers));
+      onlineUsers[socket.userId] = socket.id;
+      io.emit(
+        "user-online",
+        Object.keys(onlineUsers).map((el) => parseInt(el))
+      );
     });
 
     socket.on("new-message", async (newMessage) => {
-      // check if user is part of conversation
-      const isParticipant = await User_Conversation.findOne({
+      // grab all participants of conversation
+      const participants = await User_Conversation.findAll({
         where: {
           conversationId: newMessage.conversationId,
-          userId: socket.decoded.id,
         },
       });
+
+      // check if sending user is a participant
+      const isParticipant = participants.some(
+        (p) => p.userId === socket.decoded.id
+      );
 
       // return if not participant
       if (!isParticipant) return;
@@ -57,17 +63,22 @@ const socketio = (io) => {
         include: [{ model: User, as: "userInfo" }],
       });
 
-      console.log(result);
+      // find all online users who are participants
 
       // return
-      io.emit("new-message", result);
+      participants.forEach((p) => {
+        io.to(onlineUsers[p.userId]).emit("new-message", result);
+      });
     });
 
     // disconnect
     socket.on("disconnect", () => {
       // remove user from onlineUsers
-      onlineUsers.delete(socket.userId);
-      io.emit("user-online", Array.from(onlineUsers));
+      delete onlineUsers[socket.userId];
+      io.emit(
+        "user-online",
+        Object.keys(onlineUsers).map((el) => parseInt(el))
+      );
       console.log("socket disconnected", socket.userId);
     });
   });

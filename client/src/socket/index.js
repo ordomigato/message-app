@@ -1,20 +1,20 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState, useCallback } from "react";
 import io from "socket.io-client";
 
 export const SocketContext = createContext();
 
 const SocketState = (props) => {
-  const [socket, setSocket] = useState([]);
+  const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
-  const connectSocket = (bool) => {
+  const connectSocket = useCallback((bool) => {
     setIsConnected(bool);
-  };
+  }, []);
 
   useEffect(() => {
-    if (!localStorage.token && !isConnected) return;
-    console.log("connecting to socket");
-    setSocket(io.connect("/", { query: { token: localStorage.token } }));
+    if (localStorage.token && isConnected === true) {
+      setSocket(io.connect("/", { query: { token: localStorage.token } }));
+    }
   }, [isConnected]);
 
   return (

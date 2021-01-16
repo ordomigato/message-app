@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Grid, Typography, IconButton } from "@material-ui/core";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { makeStyles } from "@material-ui/core/styles";
@@ -40,9 +40,17 @@ const useStyles = makeStyles((theme) => ({
 
 const ChatHeader = () => {
   const classes = useStyles();
+  const [isOnline, setIsOnline] = useState(false);
 
-  const { user } = useContext(UserContext);
+  const { user, onlineUsers } = useContext(UserContext);
   const { openedConversation } = useContext(ConversationContext);
+
+  useEffect(() => {
+    const participantIds = openedConversation.participants
+      .filter((p) => p.id !== user.id)
+      .map((p) => p.id);
+    setIsOnline(participantIds.some((id) => onlineUsers.includes(id)));
+  }, [onlineUsers, openedConversation]);
 
   return (
     <Grid container className={classes.container} alignItems="center">
@@ -57,9 +65,11 @@ const ChatHeader = () => {
       </Grid>
 
       <Grid item className={classes.status}>
-        <Typography>
-          <FiberManualRecordIcon className={classes.statusIcon} /> Online
-        </Typography>
+        {isOnline && (
+          <Typography>
+            <FiberManualRecordIcon className={classes.statusIcon} /> Online
+          </Typography>
+        )}
       </Grid>
       <Grid item>
         <IconButton className={classes.moreButton}>

@@ -1,9 +1,8 @@
-import React, { useReducer, useEffect, useCallback, useContext } from "react";
+import React, { useReducer, useEffect, useCallback } from "react";
 import axios from "axios";
 import UserContext from "../context/users";
 import userReducer from "../reducer/users";
 import setAuthToken from "../../utils/setAuthToken";
-import { SocketContext } from "socket";
 
 import {
   LOGIN_FAIL,
