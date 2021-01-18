@@ -8,11 +8,17 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "conversationId",
         as: "participants",
       });
-      this.hasMany(Message, { foreignKey: "conversationId" });
+      this.hasMany(Message, { foreignKey: "conversationId", as: "messages" });
     }
   }
   Conversation.init(
-    {},
+    {
+      convoIdentifier: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+    },
     {
       sequelize,
       modelName: "Conversation",

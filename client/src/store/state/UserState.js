@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer, useEffect, useCallback } from "react";
 import axios from "axios";
 import UserContext from "../context/users";
 import userReducer from "../reducer/users";
@@ -12,17 +12,29 @@ import {
   AUTH_SUCCESS,
   AUTH_ERROR,
   LOGOUT,
+  SEARCH_USERS_CLEAR,
+  SEARCH_USERS_SUCCESSFUL,
+  SET_ONLINE_USERS,
 } from "../constants";
 
-const UserState = props => {
+const UserState = (props) => {
   const initialState = {
     isAuthenticated: false,
     user: {},
+    users: [],
     loading: true,
+    onlineUsers: [],
   };
 
+  const setOnlineUsers = useCallback((users) => {
+    dispatch({
+      type: SET_ONLINE_USERS,
+      payload: users,
+    });
+  }, []);
+
   // signup action
-  const signup = async user => {
+  const signup = async (user) => {
     try {
       const config = {
         headers: {
@@ -48,7 +60,7 @@ const UserState = props => {
   };
 
   // login action
-  const login = async user => {
+  const login = async (user) => {
     try {
       const config = {
         headers: {
@@ -94,6 +106,27 @@ const UserState = props => {
     }
   };
 
+  // find users
+  const findUsers = useCallback(async (query) => {
+    try {
+      if (!query) {
+        dispatch({
+          type: SEARCH_USERS_CLEAR,
+        });
+        return;
+      }
+      const res = await axios.get(`/api/users/username/${query}`);
+      dispatch({
+        type: SEARCH_USERS_SUCCESSFUL,
+        payload: res.data.users,
+      });
+    } catch (err) {
+      dispatch({
+        type: SEARCH_USERS_CLEAR,
+      });
+    }
+  }, []);
+
   const logout = () => {
     dispatch({
       type: LOGOUT,
@@ -110,6 +143,10 @@ const UserState = props => {
       value={{
         isAuthenticated: state.isAuthenticated,
         user: state.user,
+        users: state.users,
+        onlineUsers: state.onlineUsers,
+        setOnlineUsers,
+        findUsers,
         signup,
         login,
         loadUser,

@@ -19,18 +19,18 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const ChatInput = ({ currentConversation }) => {
-  const { sendMessage } = useContext(ConversationContext);
+const ChatInput = () => {
+  const { sendMessage, openedConversation } = useContext(ConversationContext);
   const classes = useStyles();
   const [msg, setMsg] = useState("");
 
-  const onChange = e => {
+  const onChange = (e) => {
     setMsg(e.target.value);
   };
 
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    sendMessage(msg);
+    sendMessage(msg, openedConversation.id);
     setMsg("");
   };
 

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext } from "react";
 import { Grid } from "@material-ui/core";
 import ChatHeader from "./ChatHeader";
 import ChatHistory from "./ChatHistory";
@@ -6,7 +6,7 @@ import ChatInput from "./ChatInput";
 import { makeStyles } from "@material-ui/core/styles";
 import ConversationContext from "store/context/conversations";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     minHeight: "100vh",
     maxHeight: "100vh",
@@ -27,33 +27,20 @@ const useStyles = makeStyles(theme => ({
 
 const ChatContainer = () => {
   const classes = useStyles();
-  const { openedConversation, conversations } = useContext(ConversationContext);
-  const [currentConversation, setCurrentConversation] = useState(null);
-
-  useEffect(() => {
-    const findConversation = () => {
-      // find conversation based on id
-      const conversation = conversations.find(
-        conversation => conversation.id === openedConversation
-      );
-      setCurrentConversation(conversation);
-    };
-
-    findConversation();
-  }, [conversations, openedConversation, currentConversation]);
+  const { openedConversation } = useContext(ConversationContext);
 
   return (
     <Grid container direction="column" className={classes.container}>
-      {currentConversation ? (
+      {openedConversation ? (
         <>
           <Grid item>
-            <ChatHeader currentConversation={currentConversation} />
+            <ChatHeader />
           </Grid>
           <Grid item className={classes.chatHistory}>
-            <ChatHistory currentConversation={currentConversation} />
+            <ChatHistory />
           </Grid>
           <Grid item>
-            <ChatInput currentConversation={currentConversation} />
+            <ChatInput />
           </Grid>
         </>
       ) : null}

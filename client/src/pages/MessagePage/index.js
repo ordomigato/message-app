@@ -1,18 +1,36 @@
-import React from "react";
+import React, { useEffect, useContext } from "react";
 import ChatDrawer from "components/ChatDrawer";
 import ChatContainer from "components/ChatContainer";
 import { Container, Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import UserContext from "store/context/users";
+import { SocketContext } from "socket";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     padding: 0,
   },
 }));
 
-const MessagePage = props => {
+const MessagePage = () => {
   const classes = useStyles();
+  const { user, setOnlineUsers } = useContext(UserContext);
+  const { socket, isConnected, connectSocket } = useContext(SocketContext);
+
+  useEffect(() => {
+    if (user) {
+      if (!isConnected) {
+        connectSocket(true);
+      }
+      if (socket !== null) {
+        socket.emit("user-online", user);
+        socket.on("user-online", (onlineUsers) => {
+          setOnlineUsers(onlineUsers);
+        });
+      }
+    }
+  }, [user, socket, connectSocket, isConnected, setOnlineUsers]);
 
   return (
     <Container component="main" maxWidth={false} className={classes.root}>

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Grid, Typography, IconButton } from "@material-ui/core";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import { makeStyles } from "@material-ui/core/styles";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
+import UserContext from "store/context/users";
+import ConversationContext from "store/context/conversations";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     padding: "30px 40px 30px 25px",
     boxShadow: "0px 2px 20px 0px rgba(88, 142, 196, 0.1)",
@@ -36,23 +38,38 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ChatHeader = ({ currentConversation }) => {
+const ChatHeader = () => {
   const classes = useStyles();
+  const [isOnline, setIsOnline] = useState(false);
+
+  const { user, onlineUsers } = useContext(UserContext);
+  const { openedConversation } = useContext(ConversationContext);
+
+  useEffect(() => {
+    const participantIds = openedConversation.participants
+      .filter((p) => p.id !== user.id)
+      .map((p) => p.id);
+    setIsOnline(participantIds.some((id) => onlineUsers.includes(id)));
+  }, [onlineUsers, openedConversation, user]);
 
   return (
     <Grid container className={classes.container} alignItems="center">
       <Grid item>
         <Typography className={classes.name}>
-          {currentConversation.participants.map(participant => (
-            <span key={participant.id}>{participant.username}</span>
+          {openedConversation.participants.map((participant) => (
+            <span key={participant.id}>
+              {participant.id === user.id ? null : participant.username + " "}
+            </span>
           ))}
         </Typography>
       </Grid>
 
       <Grid item className={classes.status}>
-        <Typography>
-          <FiberManualRecordIcon className={classes.statusIcon} /> Online
-        </Typography>
+        {isOnline && (
+          <Typography>
+            <FiberManualRecordIcon className={classes.statusIcon} /> Online
+          </Typography>
+        )}
       </Grid>
       <Grid item>
         <IconButton className={classes.moreButton}>

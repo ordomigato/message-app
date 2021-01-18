@@ -1,32 +1,30 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import ChatUserCard from "./ChatUserCard";
+import UserCard from "./UserCard";
 import SearchBar from "./SearchBar";
 import { Grid, Typography } from "@material-ui/core";
 import ConversationContext from "store/context/conversations";
+import UserContext from "store/context/users";
 
 const ChatList = () => {
-  const { conversations } = useContext(ConversationContext);
-  const [search, setSearch] = useState("");
+  const { conversations, getConversations } = useContext(ConversationContext);
 
-  const onChange = e => {
-    setSearch(e.target.value);
-  };
+  const { user: currentUser, users } = useContext(UserContext);
+
+  useEffect(() => {
+    getConversations();
+  }, [getConversations, currentUser]);
 
   return (
     <Grid container direction="column">
       <Typography variant="h2">Chats</Typography>
-      <SearchBar onChange={onChange} search={search} />
-      {conversations
-        .filter(conversation =>
-          search === ""
-            ? conversation
-            : conversation.participants.some(p =>
-                p.name.toLowerCase().includes(search.toLowerCase())
-              )
-        )
-        .map(conversation => (
-          <ChatUserCard conversation={conversation} key={conversation.id} />
-        ))}
+      <SearchBar />
+      {conversations.map((c) =>
+        !c ? null : <ChatUserCard conversation={c} key={c.convoIdentifier} />
+      )}
+      {users.map((u) => {
+        return <UserCard user={u} key={u.id} />;
+      })}
     </Grid>
   );
 };

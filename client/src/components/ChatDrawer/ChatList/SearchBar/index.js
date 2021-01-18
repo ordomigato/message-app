@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { InputBase, InputAdornment } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import { makeStyles } from "@material-ui/core/styles";
+import UserContext from "store/context/users";
 
 const useStyles = makeStyles(() => ({
   input: {
@@ -15,8 +16,20 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const SearchBar = ({ onChange, search }) => {
+const SearchBar = () => {
   const classes = useStyles();
+  const [query, setQuery] = useState("");
+  const { findUsers } = useContext(UserContext);
+
+  const onChange = (e) => {
+    setQuery(e.target.value);
+  };
+
+  useEffect(() => {
+    // wait until user stops typing
+    const timeoutId = setTimeout(() => findUsers(query), 1000);
+    return () => clearTimeout(timeoutId);
+  }, [query, findUsers]);
 
   return (
     <InputBase
@@ -24,7 +37,6 @@ const SearchBar = ({ onChange, search }) => {
       label="Search"
       placeholder="Search"
       onChange={onChange}
-      value={search}
       className={classes.input}
       startAdornment={
         <InputAdornment position="start">

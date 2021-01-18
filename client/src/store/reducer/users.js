@@ -6,6 +6,9 @@ import {
   AUTH_SUCCESS,
   AUTH_ERROR,
   LOGOUT,
+  SEARCH_USERS_SUCCESSFUL,
+  SEARCH_USERS_CLEAR,
+  SET_ONLINE_USERS,
 } from "../constants";
 
 const userReducer = (state, action) => {
@@ -65,6 +68,24 @@ const userReducer = (state, action) => {
         ...state,
         isAuthenticated: false,
         user: {},
+        loading: false,
+      };
+    case SEARCH_USERS_SUCCESSFUL:
+      return {
+        ...state,
+        users: payload,
+        loading: false,
+      };
+    case SEARCH_USERS_CLEAR:
+      return {
+        ...state,
+        users: [],
+        loading: false,
+      };
+    case SET_ONLINE_USERS:
+      return {
+        ...state,
+        onlineUsers: payload,
         loading: false,
       };
     default:
