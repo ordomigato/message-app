@@ -1,6 +1,6 @@
-# Express Starter
+# Messaging app
 
-This starter repo will be used for building applications using React, Material-UI, React-Router, Node, & Express.js.
+This project uses React, Material-UI, React-Router, Node, Express.js, Socket.io, and Sequelize.
 
 ## Getting started
 
@@ -39,7 +39,7 @@ $ sequelize db:migrate
 $ npm run dev
 ```
 
-## Backend Build Setup
+## Frontend Build Setup
 
 ```bash
 # install dependencies
