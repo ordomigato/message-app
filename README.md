@@ -21,6 +21,8 @@ DB_USER=postgres
 DB_PASS=password
 DB_NAME=message_db
 DB_HOST=127.0.0.1
+
+JWT_SECRET_TOKEN=somesecrettoken
 ```
 
 After, run these commands to setup the backend and database.
